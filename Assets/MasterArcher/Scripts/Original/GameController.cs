@@ -389,7 +389,7 @@ public class GameController : MonoBehaviourPunCallbacks
     /// </summary>
     public IEnumerator roundTurnManager()
     {
-        Debug.Log("**********roundTurnManager**************");
+        // Debug.Log("**********roundTurnManager**************");
 
         /************************
         if (gameIsFinished)
@@ -415,7 +415,7 @@ public class GameController : MonoBehaviourPunCallbacks
         if (currentTargetSpawn == null) currentTargetSpawn = player1Spawn;
         else currentTargetSpawn = currentTargetSpawn == player1Spawn ? player2Spawn : player1Spawn;
 
-        Debug.Log("Round: " + round + " current player: " + currentTargetSpawn);
+        // Debug.Log("Round: " + round + " current player: " + currentTargetSpawn);
 
 
         yield return new WaitForSeconds(0.2f);

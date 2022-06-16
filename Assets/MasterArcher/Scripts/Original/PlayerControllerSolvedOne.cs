@@ -4,7 +4,7 @@ using UnityEngine;
 using Photon.Pun;
 using Photon.Realtime;
 
-public class PlayerController : MonoBehaviourPunCallbacks
+public class PlayerControllerSolvedOne : MonoBehaviourPunCallbacks
 {
 
     /// <summary>
@@ -48,7 +48,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
     private float distanceFromFirstClick;
     private float shootPower;
     private float shootDirection;
-    // private Vector3 shootDirectionVector;
+    private Vector3 shootDirectionVector;
 
     //helper trajectory variables
     private float helperCreationDelay = 0.12f;
@@ -64,7 +64,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
     {
         icp = new Vector2(0, 0);
         // infoPanel.SetActive (false);
-        // shootDirectionVector = new Vector3(0, 0, 0);
+        shootDirectionVector = new Vector3(0, 0, 0);
         playerCurrentHealth = playerHealth;
         isPlayerDead = false;
 
@@ -100,7 +100,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
         // if (!GameController.playersTurn)
         //     return;
 
-        // Debug.LogError(GameController.instance.currentTargetSpawn.photonView.IsMine + " :photonView of current target");
+        Debug.LogError(GameController.instance.currentTargetSpawn.photonView.IsMine + " :photonView of current target");
         // Debug.Log(GameController.instance.currentTargetSpawn.players[0].photonView.IsMine + " : photonview of player");
 
         if (!GameController.instance.currentTargetSpawn.photonView.IsMine) return;
@@ -182,17 +182,28 @@ public class PlayerController : MonoBehaviourPunCallbacks
     /// </summary>
     void turnPlayerBody()
     {
+        Debug.Log("turnPlayerBody");
         inputRay = Camera.main.ScreenPointToRay(Input.mousePosition);
         if (Physics.Raycast(inputRay, out hitInfo, 50))
         {
             // determine the position on the screen
             inputPosX = this.hitInfo.point.x;
             inputPosY = this.hitInfo.point.y;
+            //print("Pos X-Y: " + inputPosX + " / " + inputPosY);
+
             // set the bow's angle to the arrow
             if (GameController.instance.currentTargetSpawn == GameController.instance.player1Spawn)
+            {
+                Debug.Log("<color=green>Yes</color>");
                 inputDirection = new Vector2(icp.x - inputPosX, icp.y - inputPosY);
+            }
+
             if (GameController.instance.currentTargetSpawn == GameController.instance.player2Spawn)
+            {
+                Debug.Log("<color=green>No</color>");
                 inputDirection = new Vector2(-(icp.x - inputPosX), -(icp.y - inputPosY));
+            }
+            //print("Dir X-Y: " + inputDirection.x + " / " + inputDirection.y);
 
             shootDirection = Mathf.Atan2(inputDirection.y, inputDirection.x) * Mathf.Rad2Deg;
 
@@ -205,6 +216,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
                 if (shootDirection < 0)
                     shootDirection = 0;
             }
+
             if (GameController.instance.currentTargetSpawn == GameController.instance.player2Spawn)
             {
                 if (shootDirection < -90)
@@ -215,27 +227,28 @@ public class PlayerController : MonoBehaviourPunCallbacks
 
             //apply the rotation
             playerTurnPivot.transform.eulerAngles = new Vector3(0, 0, shootDirection);
-            photonView.RPC("TurnBodyInBothGame", RpcTarget.Others, shootDirection);
 
             //calculate shoot power
             distanceFromFirstClick = inputDirection.magnitude / 4;
             shootPower = Mathf.Clamp(distanceFromFirstClick, 0, 1) * 100;
+            //print ("distanceFromFirstClick: " + distanceFromFirstClick);
+            //print("shootPower: " + shootPower);
 
-            // if (useHelper)
-            // {
-            //     //create trajectory helper points, while preventing them to show when we start to click/touch
-            //     if (shootPower > minShootPower && helperDelayIsDone)
-            //         StartCoroutine(shootTrajectoryHelper());
-            // }
+            //modify camera cps - next update
+            //CameraController.cps = 5 + (shootPower / 100);
+
+            //show informations on the UI text elements
+            // UiDynamicDegree.GetComponent<TextMesh>().text = ((int)shootDirection).ToString();
+            // UiDynamicPower.GetComponent<TextMesh> ().text = ((int)shootPower).ToString() + "%";
+
+            if (useHelper)
+            {
+                //create trajectory helper points, while preventing them to show when we start to click/touch
+                if (shootPower > minShootPower && helperDelayIsDone)
+                    StartCoroutine(shootTrajectoryHelper());
+            }
         }
     }
-
-    [PunRPC]
-    private void TurnBodyInBothGame(float shootDirectionRPCParam)
-    {
-        playerTurnPivot.transform.eulerAngles = new Vector3(0, 0, shootDirectionRPCParam);
-    }
-
 
 
     /// <summary>
@@ -255,50 +268,36 @@ public class PlayerController : MonoBehaviourPunCallbacks
         //add to shoot counter
         GameController.playerArrowShot++;
 
+        GameObject arr = Instantiate(arrow, GameController.instance.currentTargetSpawn.transform.position - new Vector3(0, 4, 0), Quaternion.Euler(0, 0, shootDirection * -1)) as GameObject;
 
-        // GameObject arr = Instantiate(arrow, GameController.instance.currentTargetSpawn.transform.position - new Vector3(0, 4, 0), Quaternion.Euler(0, 180, shootDirection * -1)) as GameObject;
-        // GameObject initiatedShootArrow = InitiateShootArrow();
-        photonView.RPC("InitiateShootArrow", RpcTarget.All, inputDirection, shootPower);
-
-        // shootDirectionVector = Vector3.Normalize(inputDirection);
         // if (GameController.instance.currentTargetSpawn == GameController.instance.player1Spawn)
         // {
-        //     shootDirectionVector = new Vector3(Mathf.Clamp(shootDirectionVector.x, 0, 1), Mathf.Clamp(shootDirectionVector.y, 0, 1), shootDirectionVector.z);
-        //     initiatedShootArrow.GetComponent<MainLauncherController>().playerShootVector = shootDirectionVector * ((shootPower + baseShootPower) / 50);
+        //     arr.name = "Player1Projectile";
+        //     arr.GetComponent<MainLauncherController>().ownerID = 0;
         // }
         // if (GameController.instance.currentTargetSpawn == GameController.instance.player2Spawn)
         // {
-        //     shootDirectionVector = new Vector3(Mathf.Clamp(shootDirectionVector.x, 0, 1), Mathf.Clamp(shootDirectionVector.y, -1, 0), shootDirectionVector.z);
-        //     initiatedShootArrow.GetComponent<MainLauncherController>().playerShootVector = -(shootDirectionVector * ((shootPower + baseShootPower) / 50));
+        //     arr.name = "Player2Projectile";
+        //     arr.GetComponent<MainLauncherController>().ownerID = 1;
         // }
-        // // print("shootPower: " + shootPower + " --- " + "shootDirectionVector: " + shootDirectionVector);
 
-        // cam.GetComponent<CameraController>().targetToFollow = initiatedShootArrow;
-
-        //reset body rotation
-        StartCoroutine(resetBodyRotation());
-    }
-
-    [PunRPC]
-    public void InitiateShootArrow(Vector2 inputDirectionParam, float shootPowerParam)
-    {
-        GameObject initiatedShootArrow = PhotonNetwork.Instantiate(arrow.name, GameController.instance.currentTargetSpawn.players[0].GetComponent<PlayerController>().playerShootPosition.transform.position, Quaternion.Euler(0, 180, shootDirection * -1)) as GameObject;
-
-        Vector3 shootDirectionVector = Vector3.Normalize(inputDirectionParam);
+        shootDirectionVector = Vector3.Normalize(inputDirection);
         if (GameController.instance.currentTargetSpawn == GameController.instance.player1Spawn)
         {
             shootDirectionVector = new Vector3(Mathf.Clamp(shootDirectionVector.x, 0, 1), Mathf.Clamp(shootDirectionVector.y, 0, 1), shootDirectionVector.z);
-            Debug.LogError(shootPowerParam + " shootarrow -- inputDirectionParam " + inputDirectionParam);
-            initiatedShootArrow.GetComponent<MainLauncherController>().playerShootVector = shootDirectionVector * ((shootPowerParam + baseShootPower) / 50);
+            arr.GetComponent<MainLauncherController>().playerShootVector = shootDirectionVector * ((shootPower + baseShootPower) / 50);
         }
         if (GameController.instance.currentTargetSpawn == GameController.instance.player2Spawn)
         {
-            Debug.LogError("player2");
             shootDirectionVector = new Vector3(Mathf.Clamp(shootDirectionVector.x, 0, 1), Mathf.Clamp(shootDirectionVector.y, -1, 0), shootDirectionVector.z);
-            initiatedShootArrow.GetComponent<MainLauncherController>().playerShootVector = -(shootDirectionVector * ((shootPower + baseShootPower) / 50));
+            arr.GetComponent<MainLauncherController>().playerShootVector = -(shootDirectionVector * ((shootPower + baseShootPower) / 50));
         }
+        // print("shootPower: " + shootPower + " --- " + "shootDirectionVector: " + shootDirectionVector);
 
-        cam.GetComponent<CameraController>().targetToFollow = initiatedShootArrow;
+        cam.GetComponent<CameraController>().targetToFollow = arr;
+
+        //reset body rotation
+        StartCoroutine(resetBodyRotation());
     }
 
 
@@ -327,31 +326,31 @@ public class PlayerController : MonoBehaviourPunCallbacks
     /// <summary>
     /// Create helper dots that shows the possible fly path of the actual arrow
     /// </summary>
-    // IEnumerator shootTrajectoryHelper()
-    // {
+    IEnumerator shootTrajectoryHelper()
+    {
 
-    //     if (!canCreateHelper)
-    //         yield break;
+        if (!canCreateHelper)
+            yield break;
 
-    //     canCreateHelper = false;
+        canCreateHelper = false;
 
-    //     GameObject t = Instantiate(trajectoryHelper, playerShootPosition.transform.position, Quaternion.Euler(0, 180, shootDirection * 1)) as GameObject;
+        GameObject t = Instantiate(trajectoryHelper, playerShootPosition.transform.position, Quaternion.Euler(0, 180, shootDirection * 1)) as GameObject;
 
-    //     shootDirectionVector = Vector3.Normalize(inputDirection);
+        shootDirectionVector = Vector3.Normalize(inputDirection);
 
-    //     if (GameController.instance.currentTargetSpawn == GameController.instance.player1Spawn)
-    //         shootDirectionVector = new Vector3(Mathf.Clamp(shootDirectionVector.x, 0, 1), Mathf.Clamp(shootDirectionVector.y, 0, 1), shootDirectionVector.z);
+        if (GameController.instance.currentTargetSpawn == GameController.instance.player1Spawn)
+            shootDirectionVector = new Vector3(Mathf.Clamp(shootDirectionVector.x, 0, 1), Mathf.Clamp(shootDirectionVector.y, 0, 1), shootDirectionVector.z);
 
-    //     if (GameController.instance.currentTargetSpawn == GameController.instance.player2Spawn)
-    //         shootDirectionVector = -(new Vector3(Mathf.Clamp(shootDirectionVector.x, 0, 1), Mathf.Clamp(shootDirectionVector.y, -1, 0), shootDirectionVector.z));
+        if (GameController.instance.currentTargetSpawn == GameController.instance.player2Spawn)
+            shootDirectionVector = -(new Vector3(Mathf.Clamp(shootDirectionVector.x, 0, 1), Mathf.Clamp(shootDirectionVector.y, 0, 1), shootDirectionVector.z));
 
-    //     //print("shootPower: " + shootPower + " --- " + "shootDirectionVector: " + shootDirectionVector);
+        //print("shootPower: " + shootPower + " --- " + "shootDirectionVector: " + shootDirectionVector);
 
-    //     t.GetComponent<Rigidbody>().AddForce(shootDirectionVector * ((shootPower + baseShootPower) / 50), ForceMode.Impulse);
+        t.GetComponent<Rigidbody>().AddForce(shootDirectionVector * ((shootPower + baseShootPower) / 50), ForceMode.Impulse);
 
-    //     yield return new WaitForSeconds(helperCreationDelay);
-    //     canCreateHelper = true;
-    // }
+        yield return new WaitForSeconds(helperCreationDelay);
+        canCreateHelper = true;
+    }
 
 
     /// <summary>

@@ -45,15 +45,20 @@ public class MainLauncherController : MonoBehaviour
 
     public static int damage;       //damage this weapon deals to target
     private bool stopUpdate;        //we need to stop this weapon after collision
-    // private bool bypassCode;        //we use this for the segments of our class that requires an enemy, but the current gameMode does not need an enemy
+                                    // private bool bypassCode;        //we use this for the segments of our class that requires an enemy, but the current gameMode does not need an enemy
 
     //special weapon-specific flags
     //private bool bombExplosionByPlayer;		//flag to set if explosion has been done by player input
     //private bool bombExplosionByEnemy;		//flag to set if explosion has been done by enemy AI
 
 
+    public static MainLauncherController instance;
+
     void Awake()
     {
+
+        if (instance != null && instance != this) Destroy(this.gameObject);
+        else instance = this;
 
         //First of all, check if there is an enemy in this game mode.
         // if (!GameModeController.isEnemyRequired())
@@ -66,7 +71,7 @@ public class MainLauncherController : MonoBehaviour
         //bombExplosionByEnemy = false;
 
         // enemy = GameObject.FindGameObjectWithTag("enemy");
-        player = GameObject.FindGameObjectWithTag("Player");
+        // player = GameObject.FindGameObjectWithTag("Player");
 
         switch (arrowType)
         {
@@ -91,7 +96,6 @@ public class MainLauncherController : MonoBehaviour
 
     void Start()
     {
-
         //set shoot time
         timeOfShot = Time.time;
 
@@ -99,18 +103,20 @@ public class MainLauncherController : MonoBehaviour
 
         //if the owner of this weapon is player, just add force to shoot it, 
         //as all calculations has already been done by payerController
-        if (ownerID == 0 || ownerID == 2)
-        {
+        // if (ownerID == 0 || ownerID == 2)
+        // {
 
-            //add force and let the weapon fly
-            if (playerShootVector.magnitude > 0)
-                GetComponent<Rigidbody>().AddForce(playerShootVector, ForceMode.Impulse);
-
-        }
-        else if (ownerID == 1)
+        //add force and let the weapon fly
+        if (playerShootVector.magnitude > 0)
         {
-            enemyShoot();
+            Debug.LogError("Working? " + playerShootVector.magnitude);
+            GetComponent<Rigidbody>().AddForce(playerShootVector, ForceMode.Impulse);
         }
+        // }
+        // else if (ownerID == 1)
+        // {
+        //     enemyShoot();
+        // }
 
         /*GetComponent<BoxCollider> ().enabled = false;
 		yield return new WaitForSeconds (collisionCheckDelay);
@@ -203,7 +209,7 @@ public class MainLauncherController : MonoBehaviour
         {
             v = GetComponent<Rigidbody>().velocity;
 
-            if (ownerID == 0 || ownerID == 2)
+            if (GameController.instance.currentTargetSpawn == GameController.instance.player1Spawn)
             {
 
                 zDir = (Mathf.Atan2(v.y, v.x) * Mathf.Rad2Deg) + 180;
@@ -211,7 +217,7 @@ public class MainLauncherController : MonoBehaviour
                 transform.eulerAngles = new Vector3(0, -yDir, zDir);
 
             }
-            else if (ownerID == 1)
+            else if (GameController.instance.currentTargetSpawn == GameController.instance.player2Spawn)
             {
 
                 zDir = (Mathf.Atan2(v.y, v.x) * Mathf.Rad2Deg);
@@ -370,6 +376,8 @@ public class MainLauncherController : MonoBehaviour
                 Destroy(gameObject, 0.01f);
             }
 
+            GameController.instance.roundTurnManagerRPC();
+
             /************************
                         //manage victim's helath status
                         enemy.GetComponent<EnemyController>().enemyCurrentHealth -= damage;
@@ -390,9 +398,6 @@ public class MainLauncherController : MonoBehaviour
             (gameObject.tag == "arrow" || gameObject.tag == "axe" || gameObject.tag == "bomb"))
         {
 
-            // if (bypassCode)
-            //     yield break;
-
             //disable the arrow
             stopUpdate = true;
             GetComponent<Rigidbody>().useGravity = false;
@@ -412,8 +417,6 @@ public class MainLauncherController : MonoBehaviour
             GameObject blood = Instantiate(bloodFx, other.contacts[0].point + new Vector3(0, 0, -1.5f), Quaternion.Euler(0, 0, 0)) as GameObject;
             blood.name = "BloodFX";
             Destroy(blood, 1.5f);
-
-            Debug.Log("OnCollisionEnter ending in mainLauncherController");
 
 
             //manage victim's helath status

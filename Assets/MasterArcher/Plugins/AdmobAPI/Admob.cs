@@ -3,113 +3,114 @@
 using UnityEngine;
 using System.Collections;
 using System.Runtime.InteropServices;
-namespace admob 
+namespace admob
 {
-	public class Admob {
+    public class Admob
+    {
         public delegate void AdmobEventHandler(string eventName, string msg);
 
         public event AdmobEventHandler bannerEventHandler;
         public event AdmobEventHandler interstitialEventHandler;
         public event AdmobEventHandler rewardedVideoEventHandler;
         public event AdmobEventHandler nativeBannerEventHandler;
-        private static Admob _instance;	
-	
-		public static Admob Instance()
-	    {
-	        if(_instance == null)
-	        {
-	            _instance = new Admob();
-				_instance.preInitAdmob ();
-	        }
-	        return _instance;
-	    }
-        
-		#if UNITY_EDITOR
-		private void preInitAdmob()
-		{
+        private static Admob _instance;
 
-		}
+        public static Admob Instance()
+        {
+            if (_instance == null)
+            {
+                _instance = new Admob();
+                _instance.preInitAdmob();
+            }
+            return _instance;
+        }
 
-		public void initAdmob(string bannerID, string fullID)
-		{
-		Debug.Log("calling initAdmob");
-		}
+#if UNITY_EDITOR
+        private void preInitAdmob()
+        {
 
+        }
 
-		public void showBannerAbsolute(AdSize size, int x, int y,string instanceName="defaultBanner")
-		{
-		Debug.Log("calling showBannerAbsolute");
-		}
+        public void initAdmob(string bannerID, string fullID)
+        {
+            // Debug.Log("calling initAdmob");
+        }
 
 
-		public void showBannerRelative(AdSize size, int position, int marginY,string instanceName="defaultBanner")
-		{
-		Debug.Log("calling showBannerRelative");
-		}
+        public void showBannerAbsolute(AdSize size, int x, int y, string instanceName = "defaultBanner")
+        {
+            // Debug.Log("calling showBannerAbsolute");
+        }
 
 
-		public void removeBanner(string instanceName="defaultBanner")
-		{
-		Debug.Log("calling removeBanner");
-		}
+        public void showBannerRelative(AdSize size, int position, int marginY, string instanceName = "defaultBanner")
+        {
+            // Debug.Log("calling showBannerRelative");
+        }
 
 
-		public void loadInterstitial()
-		{
-		Debug.Log("calling loadInterstitial");
-		}
+        public void removeBanner(string instanceName = "defaultBanner")
+        {
+            // Debug.Log("calling removeBanner");
+        }
 
 
-		public bool isInterstitialReady()
-		{
-		Debug.Log("calling isInterstitialReady");
-		return false;
-		}
+        public void loadInterstitial()
+        {
+            // Debug.Log("calling loadInterstitial");
+        }
 
 
-		public void showInterstitial()
-		{
-		Debug.Log("calling showInterstitial");
-		}
-
-		public void loadRewardedVideo(string rewardedVideoID)
-		{
-		Debug.Log("calling loadRewardedVideo");
-		}
-		public bool isRewardedVideoReady()
-		{
-		Debug.Log("calling isRewardedVideoReady");
-		return false;
-		}
-		public void showRewardedVideo()
-		{
-		Debug.Log("calling showRewardedVideo");
-		}
-
-		public void setTesting(bool v)
-		{
-		Debug.Log("calling setTesting");
-		}
+        public bool isInterstitialReady()
+        {
+            // Debug.Log("calling isInterstitialReady");
+            return false;
+        }
 
 
-		public void setForChildren(bool v)
-		{
-		Debug.Log("calling setForChildren");
-		}
-		public void showNativeBannerRelative(AdSize size, int position, int marginY,string nativeBannerID, string instanceName = "defaultNativeBanner")
-		{
-		Debug.Log("calling showNativeBannerRelative");
-		}
-		public void showNativeBannerAbsolute(AdSize size, int x, int y, string nativeBannerID,string instanceName = "defaultNativeBanner")
-		{
-		Debug.Log("calling showNativeBannerAbsolute");
-		}
-		public void removeNativeBanner(string instanceName = "defaultNativeBanner")
-		{
-		Debug.Log("calling removeNativeBanner");
-		}
+        public void showInterstitial()
+        {
+            // Debug.Log("calling showInterstitial");
+        }
 
-        #elif UNITY_IOS
+        public void loadRewardedVideo(string rewardedVideoID)
+        {
+            // Debug.Log("calling loadRewardedVideo");
+        }
+        public bool isRewardedVideoReady()
+        {
+            // Debug.Log("calling isRewardedVideoReady");
+            return false;
+        }
+        public void showRewardedVideo()
+        {
+            // Debug.Log("calling showRewardedVideo");
+        }
+
+        public void setTesting(bool v)
+        {
+            // Debug.Log("calling setTesting");
+        }
+
+
+        public void setForChildren(bool v)
+        {
+            // Debug.Log("calling setForChildren");
+        }
+        public void showNativeBannerRelative(AdSize size, int position, int marginY, string nativeBannerID, string instanceName = "defaultNativeBanner")
+        {
+            // Debug.Log("calling showNativeBannerRelative");
+        }
+        public void showNativeBannerAbsolute(AdSize size, int x, int y, string nativeBannerID, string instanceName = "defaultNativeBanner")
+        {
+            // Debug.Log("calling showNativeBannerAbsolute");
+        }
+        public void removeNativeBanner(string instanceName = "defaultNativeBanner")
+        {
+            // Debug.Log("calling removeNativeBanner");
+        }
+
+#elif UNITY_IOS
         internal delegate void AdmobAdCallBack(string adtype, string eventName, string msg);
         private void preInitAdmob()
         {
@@ -217,14 +218,14 @@ namespace admob
         private static extern void _kmsetForChildren(bool v);
         public void setForChildren(bool v)
         {
-          //  Debug.Log("set for child in c#");
+           Debug.Log("set for child in c#");
             _kmsetForChildren(v);
         }
 
         [MonoPInvokeCallback(typeof(AdmobAdCallBack))]
         public static void onAdmobEventCallBack(string adtype, string eventName, string msg)
         {
-         //   Debug.Log("c# receive callback " + adtype + "  " + eventName + "  " + msg);
+           Debug.Log("c# receive callback " + adtype + "  " + eventName + "  " + msg);
             if (adtype == "banner")
             {
                 if (Admob.Instance().bannerEventHandler != null)
@@ -363,81 +364,81 @@ namespace admob
         
         public void initAdmob(string bannerID, string fullID)
         {
-            Debug.Log("calling initAdmob");
+            // Debug.Log("calling initAdmob");
         }
 
         
         public void showBannerAbsolute(AdSize size, int x, int y,string instanceName="defaultBanner")
         {
-            Debug.Log("calling showBannerAbsolute");
+            // Debug.Log("calling showBannerAbsolute");
         }
 
         
         public void showBannerRelative(AdSize size, int position, int marginY,string instanceName="defaultBanner")
         {
-            Debug.Log("calling showBannerRelative");
+            // Debug.Log("calling showBannerRelative");
         }
 
         
         public void removeBanner(string instanceName="defaultBanner")
         {
-            Debug.Log("calling removeBanner");
+            // Debug.Log("calling removeBanner");
         }
 
         
         public void loadInterstitial()
         {
-            Debug.Log("calling loadInterstitial");
+            // Debug.Log("calling loadInterstitial");
         }
 
         
         public bool isInterstitialReady()
         {
-            Debug.Log("calling isInterstitialReady");
+            // Debug.Log("calling isInterstitialReady");
         return false;
         }
 
         
         public void showInterstitial()
         {
-            Debug.Log("calling showInterstitial");
+            // Debug.Log("calling showInterstitial");
         }
 
         public void loadRewardedVideo(string rewardedVideoID)
         {
-            Debug.Log("calling loadRewardedVideo");
+            // Debug.Log("calling loadRewardedVideo");
         }
         public bool isRewardedVideoReady()
         {
-            Debug.Log("calling isRewardedVideoReady");
+            // Debug.Log("calling isRewardedVideoReady");
             return false;
         }
         public void showRewardedVideo()
         {
-            Debug.Log("calling showRewardedVideo");
+            // Debug.Log("calling showRewardedVideo");
         }
         
         public void setTesting(bool v)
         {
-            Debug.Log("calling setTesting");
+            // Debug.Log("calling setTesting");
         }
 
         
         public void setForChildren(bool v)
         {
-            Debug.Log("calling setForChildren");
+            // Debug.Log("calling setForChildren");
         }
          public void showNativeBannerRelative(AdSize size, int position, int marginY,string nativeBannerID, string instanceName = "defaultNativeBanner")
         {
-           Debug.Log("calling showNativeBannerRelative");
+        //    Debug.Log("calling showNativeBannerRelative");
         }
         public void showNativeBannerAbsolute(AdSize size, int x, int y, string nativeBannerID,string instanceName = "defaultNativeBanner")
         {
-           Debug.Log("calling showNativeBannerAbsolute");
+        //    Debug.Log("calling showNativeBannerAbsolute");
         }
         public void removeNativeBanner(string instanceName = "defaultNativeBanner")
         {
-           Debug.Log("calling removeNativeBanner");
+        //    Debug.Log("calling removeNativeBanner");
         }
 #endif
 
