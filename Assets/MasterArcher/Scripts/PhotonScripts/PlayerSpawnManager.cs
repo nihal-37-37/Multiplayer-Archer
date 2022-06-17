@@ -16,8 +16,6 @@ public class PlayerSpawnManager : MonoBehaviourPunCallbacks
     public static PlayerSpawnManager me;
     public static PlayerSpawnManager enemy;
 
-    // bool toggle = false;
-    GameObject playerInstance;
 
     [PunRPC]
     private void Initialize(Player player)
@@ -33,7 +31,7 @@ public class PlayerSpawnManager : MonoBehaviourPunCallbacks
 
     private void SpawnPlayers()
     {
-        playerInstance = PhotonNetwork.Instantiate(playerPrefab.name, playerSpawnLocation.position, Quaternion.identity);
+        GameObject playerInstance = PhotonNetwork.Instantiate(playerPrefab.name, playerSpawnLocation.position, Quaternion.identity);
         playerInstance.GetPhotonView().RPC("Initialize", RpcTarget.Others, false);
         playerInstance.GetPhotonView().RPC("Initialize", this.player, true);
     }

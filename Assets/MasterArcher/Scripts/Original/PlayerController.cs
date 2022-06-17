@@ -57,6 +57,8 @@ public class PlayerController : MonoBehaviourPunCallbacks
     private float helperShowTimer;
     private bool helperDelayIsDone;
 
+    public int reverse;
+
     /// <summary>
     /// Init
     /// </summary>
@@ -116,7 +118,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
         if (Input.GetMouseButton(0))
         {
 
-            Debug.Log("GetMouseButton in update");
+            // Debug.Log("GetMouseButton in update");
             turnPlayerBody();
 
             //only show shot info when we are fighting with an enemy
@@ -279,23 +281,68 @@ public class PlayerController : MonoBehaviourPunCallbacks
         StartCoroutine(resetBodyRotation());
     }
 
+    // public void InitiateShootArrow(Vector2 inputDirectionParam, float shootPowerParam)
+    // {
+    //     StartCoroutine(InitiateShootArrowCoroutine(inputDirectionParam, shootPowerParam));
+    // }
+
+    private void transferArrowOwnership(GameObject arrow)
+    {
+        if (arrow.GetComponent<PhotonView>().Owner.ActorNumber == PhotonNetwork.LocalPlayer.ActorNumber)
+        {
+            arrow.GetPhotonView().TransferOwnership(2);
+        }
+        else
+        {
+
+        }
+    }
+
     [PunRPC]
     public void InitiateShootArrow(Vector2 inputDirectionParam, float shootPowerParam)
     {
+        // Debug.LogError(photonView.IsMine + " player mine");
+
+        // GameObject initiatedShootArrow = PhotonNetwork.Instantiate(arrow.name, new Vector3(-3.08f, -1.49000001f, 0), Quaternion.Euler(0, 180, shootDirection * -1)) as GameObject;
+
+        // Debug.LogError(initiatedShootArrow.GetPhotonView().IsMine + " arrow mine");
+
+
         GameObject initiatedShootArrow = PhotonNetwork.Instantiate(arrow.name, GameController.instance.currentTargetSpawn.players[0].GetComponent<PlayerController>().playerShootPosition.transform.position, Quaternion.Euler(0, 180, shootDirection * -1)) as GameObject;
 
         Vector3 shootDirectionVector = Vector3.Normalize(inputDirectionParam);
+
+        Debug.LogError(initiatedShootArrow.GetPhotonView().ViewID + " view id and actor number" + initiatedShootArrow.GetPhotonView().Owner.ActorNumber);
+
         if (GameController.instance.currentTargetSpawn == GameController.instance.player1Spawn)
         {
+            // initiatedShootArrow.GetPhotonView().TransferOwnership(2);
+
+            initiatedShootArrow.GetPhotonView().TransferOwnership(1);
+            // if (initiatedShootArrow.GetComponent<PhotonView>().Owner.ActorNumber == PhotonNetwork.LocalPlayer.ActorNumber)
+            // {
+            //     initiatedShootArrow.GetPhotonView().TransferOwnership(2);
+            //     Debug.Log("transferring1");
+            // }
+            Debug.LogError("player1 " + initiatedShootArrow.GetPhotonView().IsMine);
             shootDirectionVector = new Vector3(Mathf.Clamp(shootDirectionVector.x, 0, 1), Mathf.Clamp(shootDirectionVector.y, 0, 1), shootDirectionVector.z);
-            Debug.LogError(shootPowerParam + " shootarrow -- inputDirectionParam " + inputDirectionParam);
-            initiatedShootArrow.GetComponent<MainLauncherController>().playerShootVector = shootDirectionVector * ((shootPowerParam + baseShootPower) / 50);
+            // Debug.LogError(shootPowerParam + " shootarrow -- inputDirectionParam " + inputDirectionParam);
+            initiatedShootArrow.GetComponent<MainLauncherController>().playerShootVector = reverse * (shootDirectionVector * ((shootPowerParam + baseShootPower) / 50));
+
         }
         if (GameController.instance.currentTargetSpawn == GameController.instance.player2Spawn)
         {
-            Debug.LogError("player2");
+            initiatedShootArrow.GetPhotonView().TransferOwnership(2);
+            // if (initiatedShootArrow.GetComponent<PhotonView>().Owner.ActorNumber == PhotonNetwork.LocalPlayer.ActorNumber)
+            // {
+            //     initiatedShootArrow.GetPhotonView().TransferOwnership(1);
+            //     Debug.Log("transferring2");
+            // }
+            // initiatedShootArrow.GetPhotonView().TransferOwnership(1);
+
+            Debug.LogError("player2 " + initiatedShootArrow.GetPhotonView().IsMine);
             shootDirectionVector = new Vector3(Mathf.Clamp(shootDirectionVector.x, 0, 1), Mathf.Clamp(shootDirectionVector.y, -1, 0), shootDirectionVector.z);
-            initiatedShootArrow.GetComponent<MainLauncherController>().playerShootVector = -(shootDirectionVector * ((shootPower + baseShootPower) / 50));
+            initiatedShootArrow.GetComponent<MainLauncherController>().playerShootVector = reverse * (shootDirectionVector * ((shootPower + baseShootPower) / 50));
         }
 
         cam.GetComponent<CameraController>().targetToFollow = initiatedShootArrow;

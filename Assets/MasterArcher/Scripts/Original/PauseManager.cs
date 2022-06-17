@@ -127,7 +127,7 @@ public class PauseManager : MonoBehaviour {
 
 	void PauseGame (){
 		
-		print("Game is Paused...");
+		// print("Game is Paused...");
 		enableInput = false;
 
 		//show an Interstitial Ad when the game is paused
@@ -148,7 +148,7 @@ public class PauseManager : MonoBehaviour {
 
 	void UnPauseGame (){
 		
-		print("Unpause");
+		// print("Unpause");
 		isGamePaused = false;
 		uiCam.GetComponent<Camera> ().enabled = true;
 

@@ -1,8 +1,10 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Photon.Pun;
+using Photon.Realtime;
 
-public class MainLauncherController : MonoBehaviour
+public class MainLauncherController : MonoBehaviourPunCallbacks
 {
 
     /// <summary>
@@ -123,7 +125,7 @@ public class MainLauncherController : MonoBehaviour
 		GetComponent<BoxCollider> ().enabled = true;*/
 
         //we can destroy the arrow after a short time (if it is not already destroyed)
-        Destroy(gameObject, 45);
+        // Destroy(gameObject, 2);
     }
 
 
@@ -281,11 +283,11 @@ public class MainLauncherController : MonoBehaviour
     IEnumerator OnCollisionEnter(Collision other)
     {
 
-        Debug.Log("OnCollisionEnter in mainLauncherController" + (Time.time < timeOfShot + collisionCheckDelay));
+        Debug.LogError("OnCollisionEnter in mainLauncherController");
 
         if (Time.time < timeOfShot + collisionCheckDelay)
         {
-            print("Can't check for collision at this moment!");
+            // print("Can't check for collision at this moment!");
             yield break;
         }
 
@@ -314,16 +316,18 @@ public class MainLauncherController : MonoBehaviour
             trailFx.SetActive(false);
 
             //if this is a bomb weapon, we need an explosion after collision
-            if (gameObject.tag == "bomb")
-            {
-                GameObject exp = Instantiate(explosionFx, other.contacts[0].point + new Vector3(0, 0, -1.5f), Quaternion.Euler(0, 0, 0)) as GameObject;
-                exp.name = "Explosion";
-                Destroy(gameObject, 0.01f);
-            }
+            // if (gameObject.tag == "bomb")
+            // {
+            //     GameObject exp = Instantiate(explosionFx, other.contacts[0].point + new Vector3(0, 0, -1.5f), Quaternion.Euler(0, 0, 0)) as GameObject;
+            //     exp.name = "Explosion";
+            //     Destroy(gameObject, 0.01f);
+            // }
 
             GameController.isArrowInScene = false;
 
             GameController.instance.roundTurnManagerRPC();
+            Debug.LogError("ground collision");
+
 
             //We only change turns if this game mode requires an enemy
             // if (!bypassCode)
@@ -369,14 +373,15 @@ public class MainLauncherController : MonoBehaviour
             }
 
             //if this is a bomb weapon, we need an explosion after collision
-            if (gameObject.tag == "bomb")
-            {
-                GameObject exp = Instantiate(explosionFx, other.contacts[0].point + new Vector3(0, 0, -1.5f), Quaternion.Euler(0, 0, 0)) as GameObject;
-                exp.name = "Explosion";
-                Destroy(gameObject, 0.01f);
-            }
+            // if (gameObject.tag == "bomb")
+            // {
+            //     GameObject exp = Instantiate(explosionFx, other.contacts[0].point + new Vector3(0, 0, -1.5f), Quaternion.Euler(0, 0, 0)) as GameObject;
+            //     exp.name = "Explosion";
+            //     Destroy(gameObject, 0.01f);
+            // }
 
             GameController.instance.roundTurnManagerRPC();
+            Debug.LogError("enemy collision");
 
             /************************
                         //manage victim's helath status
@@ -428,6 +433,7 @@ public class MainLauncherController : MonoBehaviour
             //change the turn
             // GameController.instance.currentPlayer.players[0].GetComponent<PlayerController>().changeTurns();
             GameController.instance.roundTurnManagerRPC();
+            Debug.LogError("player collision");
         }
 
 
@@ -442,6 +448,8 @@ public class MainLauncherController : MonoBehaviour
         //enable collision detection again
         yield return new WaitForSeconds(0.5f);
         isChecking = false;
+
+        // PhotonNetwork.Destroy(gameObject);
     }
 
 }
